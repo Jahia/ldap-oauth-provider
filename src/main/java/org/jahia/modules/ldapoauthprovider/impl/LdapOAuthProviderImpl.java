@@ -128,14 +128,18 @@ public class LdapOAuthProviderImpl implements MapperService {
 
                                     if (mapperResult.containsKey("j:firstName")) {
                                         final String firstName = (String) ((Map<String, Object>) mapperResult.get("j:firstName")).get(JahiaOAuthConstants.PROPERTY_VALUE);
-                                        final javax.naming.directory.Attribute commonName = new javax.naming.directory.BasicAttribute("cn", firstName);
-                                        container.put(commonName);
+                                        if (!firstName.isEmpty()) {
+                                            final javax.naming.directory.Attribute commonName = new javax.naming.directory.BasicAttribute("cn", firstName);
+                                            container.put(commonName);
+                                        }
                                     }
 
                                     if (mapperResult.containsKey("j:lastName")) {
                                         final String lastName = (String) ((Map<String, Object>) mapperResult.get("j:lastName")).get(JahiaOAuthConstants.PROPERTY_VALUE);
-                                        final javax.naming.directory.Attribute surName = new javax.naming.directory.BasicAttribute("sn", lastName);
-                                        container.put(surName);
+                                        if (!lastName.isEmpty()) {
+                                            final javax.naming.directory.Attribute surName = new javax.naming.directory.BasicAttribute("sn", lastName);
+                                            container.put(surName);
+                                        }
                                     }
                                     final javax.naming.directory.Attribute ssoUser = new javax.naming.directory.BasicAttribute("ssoUser", "false");
                                     container.put(ssoUser);
