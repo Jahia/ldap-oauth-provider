@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    ==========================================================================================
+    =                   JAHIA'S DUAL LICENSING - IMPORTANT INFORMATION                       =
+    ==========================================================================================
+
+                                    http://www.jahia.com
+
+        Copyright (C) 2002-2017 Jahia Solutions Group SA. All rights reserved.
+
+        THIS FILE IS AVAILABLE UNDER TWO DIFFERENT LICENSES:
+        1/GPL OR 2/JSEL
+
+        1/ GPL
+        ==================================================================================
+
+        IF YOU DECIDE TO CHOOSE THE GPL LICENSE, YOU MUST COMPLY WITH THE FOLLOWING TERMS:
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program. If not, see <http://www.gnu.org/licenses />.
+
+
+        2/ JSEL - Commercial and Supported Versions of the program
+        ===================================================================================
+
+        IF YOU DECIDE TO CHOOSE THE JSEL LICENSE, YOU MUST COMPLY WITH THE FOLLOWING TERMS:
+
+        Alternatively, commercial and supported versions of the program - also known as
+        Enterprise Distributions - must be used in accordance with the terms and conditions
+        contained in a separate written agreement between you and Jahia Solutions Group SA.
+
+        If you are unsure which license is appropriate for your use,
+        please contact the sales department at sales@jahia.com.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jahia.modules</groupId>
+        <artifactId>jahia-modules</artifactId>
+        <version>7.2.0.0</version>
+    </parent>
+
+    <artifactId>ldap-oauth-provider</artifactId>
+    <version>1.0.2-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>LDAP OAuth provider</name>
+    <description>This is the custom module (LDAP OAuth provider for running on a Digital Experience Manager server.</description>
+
+    <scm>
+        <connection>scm:git:git@github.com:Jahia/ldap-oauth-provider.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/ldap-oauth-provider.git</developerConnection>
+        <url>https://github.com/Jahia/ldap-oauth-provider</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <jahia-depends>default,external-provider,external-provider-users-groups,jahia-oauth,ldap</jahia-depends>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>oauth-releases</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>oauth-snapshots</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>jahia-public</id>
+            <name>Jahia Public Repository</name>
+            <url>https://devtools.jahia.com/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>oauth-snapshots</id>
+            <name>Jahia OAuth Snapshots</name>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>oauth-releases</id>
+            <name>Jahia OAuth Releases</name>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jahia.modules</groupId>
+            <artifactId>jahia-oauth</artifactId>
+            <version>1.1.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jahia.modules</groupId>
+            <artifactId>external-provider</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jahia.modules</groupId>
+            <artifactId>ldap</artifactId>
+            <version>3.1.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>external-provider-users-groups</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-descriptor</id>
+                        <goals>
+                            <goal>attach-descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            org.springframework.ldap.core,
+                            ${jahia.modules.importPackage},
+                            ${jahia.plugin.projectPackageImport},*
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>jahia-maven-plugin</artifactId>
+                <groupId>org.jahia.server</groupId>
+                <executions>
+                    <execution>
+                        <id>i18n2js</id>
+                        <goals>
+                            <goal>javascript-dictionary</goal>
+                        </goals>
+                        <configuration>
+                            <dictionaryName>ldapoai18n</dictionaryName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
