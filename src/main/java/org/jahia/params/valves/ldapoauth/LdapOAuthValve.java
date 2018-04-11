@@ -27,8 +27,9 @@ import org.slf4j.LoggerFactory;
 public class LdapOAuthValve extends AutoRegisteredBaseAuthValve {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthValve.class);
+    private static final String PARAMETER_SITE = "site";
     private static final String VALVE_RESULT = "login_valve_result";
-    public static final String PROPERTY_EMAIL = "j:email";
+    public static final String PROPERTY_EMAIL = "j;email";
     public static final String PROPERTY_FIRST_NAME = "j:firstName";
     public static final String PROPERTY_LAST_NAME = "j:lastName";
     private JahiaUserManagerService jahiaUserManagerService;
@@ -51,14 +52,14 @@ public class LdapOAuthValve extends AutoRegisteredBaseAuthValve {
         final String originalSessionId = request.getSession().getId();
 
         final HashMap<String, Object> mapperResult = jahiaOAuthService.getMapperResults(ldapOAuthProviderImpl.getServiceName(), originalSessionId);
-        if (mapperResult == null || !request.getParameterMap().containsKey("site")) {
+        if (mapperResult == null || !request.getParameterMap().containsKey(PARAMETER_SITE)) {
             valveContext.invokeNext(context);
             return;
         }
 
         boolean ok = false;
-        final String siteKey = request.getParameter("site");
-        final String userId = (mapperResult.containsKey("j:email")) ? (String) ((Map<String, Object>) mapperResult.get("j:email")).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
+        final String siteKey = request.getParameter(PARAMETER_SITE);
+        final String userId = (mapperResult.containsKey(PROPERTY_EMAIL)) ? (String) ((Map<String, Object>) mapperResult.get(PROPERTY_EMAIL)).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
         final JCRUserNode userNode = jahiaUserManagerService.lookupUser(userId, siteKey);
 
         if (userNode != null) {
