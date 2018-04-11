@@ -17,3 +17,4 @@
  - ldapOAuth_j_email (string) = 'mail' multiple indexed=no nofulltext
  - ldapOAuth_j_firstName (string) = 'cn' multiple indexed=no nofulltext
  - ldapOAuth_j_lastName (string) ='sn' multiple indexed=no nofulltext
+ - ldapOAuth_static_properties (string,textarea) indexed=no nofulltext

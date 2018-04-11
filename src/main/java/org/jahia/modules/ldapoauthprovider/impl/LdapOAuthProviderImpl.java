@@ -29,6 +29,7 @@ public class LdapOAuthProviderImpl implements MapperService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthProviderImpl.class);
     private static final String KEY_VALUE_NAME = "name";
     private static final String PREFIX_LDAP_O_AUTH_PROPERTIES = "ldapOAuth_";
+    private static final String PROPERTY_LDAP_O_AUTH_STATIC_PROPERTIES = PREFIX_LDAP_O_AUTH_PROPERTIES + "static_properties";
     private static final String PROPERTY_LDAP_O_AUTH_USER_BASE_DN = PREFIX_LDAP_O_AUTH_PROPERTIES + "userBaseDn";
     private static final String PROPERTY_OBJECT_CLASS = PREFIX_LDAP_O_AUTH_PROPERTIES + "objectClass";
     private static final String PROPERTY_RDN = PREFIX_LDAP_O_AUTH_PROPERTIES + "rdn";
@@ -102,6 +103,15 @@ public class LdapOAuthProviderImpl implements MapperService {
                                         } else {
                                             final String errMsg = String.format("The expected property %s is not gotten from the OAuth service", expectedProperty);
                                             LOGGER.error(errMsg);
+                                        }
+                                    }
+
+                                    final String staticProperties = siteNode.getPropertyAsString(PROPERTY_LDAP_O_AUTH_STATIC_PROPERTIES);
+                                    if (staticProperties != null && !staticProperties.isEmpty()) {
+                                        for (String staticProperty : staticProperties.split("\n")) {
+                                            final String[] values = staticProperty.split("=");
+                                            final javax.naming.directory.Attribute attribute = new javax.naming.directory.BasicAttribute(values[0], values[1]);
+                                            container.put(attribute);
                                         }
                                     }
 
