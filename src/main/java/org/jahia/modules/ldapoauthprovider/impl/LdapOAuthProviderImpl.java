@@ -86,15 +86,22 @@ public class LdapOAuthProviderImpl implements MapperService {
                                     for (String expectedProperty : expectedProperties) {
                                         if (mapperResult.containsKey(expectedProperty)) {
                                             final String value = (String) ((Map<String, Object>) mapperResult.get(expectedProperty)).get(JahiaOAuthConstants.PROPERTY_VALUE);
-                                            if (!value.isEmpty()) {
-                                                final String attributeListValue = siteNode.getPropertyAsString(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replaceAll(":", "_"));
-                                                if (attributeListValue != null && !attributeListValue.isEmpty()) {
-                                                    for (String attr : attributeListValue.split(",")) {
-                                                        final javax.naming.directory.Attribute attribute = new javax.naming.directory.BasicAttribute(attr, value);
+                                            if (value.isEmpty()) {
+                                                LOGGER.error("The expected values are not defined");
+                                            } else {
+                                                final JCRValueWrapper[] attributes = siteNode.getProperty(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replaceAll(":", "_")).getValues();
+                                                if (attributes == null) {
+                                                    LOGGER.error("The expected properties are not mapped to the LDAP attributes");
+                                                } else {
+                                                    for (JCRValueWrapper attr : attributes) {
+                                                        final javax.naming.directory.Attribute attribute = new javax.naming.directory.BasicAttribute(attr.getString(), value);
                                                         container.put(attribute);
                                                     }
                                                 }
                                             }
+                                        } else {
+                                            final String errMsg = String.format("The expected property %s is not gotten from the OAuth service", expectedProperty);
+                                            LOGGER.error(errMsg);
                                         }
                                     }
 

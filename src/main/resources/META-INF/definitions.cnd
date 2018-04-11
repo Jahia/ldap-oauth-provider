@@ -14,6 +14,6 @@
  - ldapOAuth_rdn (string) = 'uid=' indexed=no nofulltext
  - ldapOAuth_objectClass (string) = 'top','jahia' multiple indexed=no nofulltext
  - ldapOAuth_userBaseDn (string) = 'dc=jahia,dc=com' indexed=no nofulltext
- - ldapOAuth_j_email (string) = 'mail' indexed=no nofulltext
- - ldapOAuth_j_firstName (string) = 'cn' indexed=no nofulltext
- - ldapOAuth_j_lastName (string) ='sn' indexed=no nofulltext
+ - ldapOAuth_j_email (string) = 'mail' multiple indexed=no nofulltext
+ - ldapOAuth_j_firstName (string) = 'cn' multiple indexed=no nofulltext
+ - ldapOAuth_j_lastName (string) ='sn' multiple indexed=no nofulltext
