@@ -29,7 +29,7 @@ public class LdapOAuthValve extends AutoRegisteredBaseAuthValve {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthValve.class);
     private static final String PARAMETER_SITE = "site";
     private static final String VALVE_RESULT = "login_valve_result";
-    public static final String PROPERTY_EMAIL = "j;email";
+    public static final String PROPERTY_EMAIL = "j:email";
     public static final String PROPERTY_FIRST_NAME = "j:firstName";
     public static final String PROPERTY_LAST_NAME = "j:lastName";
     private JahiaUserManagerService jahiaUserManagerService;
