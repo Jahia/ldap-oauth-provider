@@ -53,7 +53,7 @@
     </parent>
 
     <artifactId>ldap-oauth-provider</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>LDAP OAuth provider</name>
     <description>This is the custom module (LDAP OAuth provider for running on a Digital Experience Manager server.</description>
