@@ -74,6 +74,9 @@ public class LdapOAuthValve extends AutoRegisteredBaseAuthValve {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthValve.class);
     private static final String VALVE_RESULT = "login_valve_result";
+    public static final String PROPERTY_EMAIL = "j:email";
+    public static final String PROPERTY_FIRST_NAME = "j:firstName";
+    public static final String PROPERTY_LAST_NAME = "j:lastName";
     private JahiaUserManagerService jahiaUserManagerService;
     private JahiaOAuthService jahiaOAuthService;
     private JahiaOAuthCacheService jahiaOAuthCacheService;
@@ -92,7 +95,7 @@ public class LdapOAuthValve extends AutoRegisteredBaseAuthValve {
         }
 
         final String originalSessionId = request.getSession().getId();
-        
+
         final HashMap<String, Object> mapperResult = jahiaOAuthService.getMapperResults(ldapOAuthProviderImpl.getServiceName(), originalSessionId);
         if (mapperResult == null || !request.getParameterMap().containsKey("site")) {
             valveContext.invokeNext(context);

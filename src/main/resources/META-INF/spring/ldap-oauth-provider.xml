@@ -55,9 +55,4 @@
             <entry key="mapperServiceName" value="ldapOAuthProvider"/>
         </osgi:service-properties>
     </osgi:service>
-    
-    <bean class="org.jahia.params.valves.ldapoauth.actions.ManageLdapProviderKeys">
-        <property name="name" value="manageLdapProviderKeysAction"/>
-        <property name="requiredPermission" value="canSetupJahiaOAuth"/>
-    </bean>
 </beans>

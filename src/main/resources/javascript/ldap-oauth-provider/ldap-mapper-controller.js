@@ -3,9 +3,9 @@
 
     angular.module('JahiaOAuthApp').controller('LdapOAuthProviderController', LdapOAuthController);
 
-    LdapOAuthController.$inject = ['$routeParams', 'settingsService', 'helperService', 'i18nService', 'ldapSettingsService'];
+    LdapOAuthController.$inject = ['$routeParams', 'settingsService', 'helperService', 'i18nService'];
 
-    function LdapOAuthController($routeParams, settingsService, helperService, i18nService, ldapSettingsService) {
+    function LdapOAuthController($routeParams, settingsService, helperService, i18nService) {
         var vm = this;
 
         // Variables
@@ -27,9 +27,7 @@
         vm.toggleCard = toggleCard;
         vm.orderByConnector = orderByConnector;
         vm.orderByMapper = orderByMapper;
-        vm.setLdapProviderKey = ldapSettingsService.setLdapProviderKey;
-        vm.getLdapProviderKey = ldapSettingsService.getLdapProviderKey;
-
+        
         _init();
 
         function saveMapperSettings() {
@@ -56,20 +54,6 @@
                 helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.error.mandatoryPropertiesNotMapped'));
                 return false;
             }
-
-            ldapSettingsService.setLdapProviderKey({
-                connectorServiceName: $routeParams.connectorServiceName,
-                mapperServiceName: 'ldapOAuthProvider',
-                action: 'setLdapProviderKey',
-                nodeType: 'joant:ldapOAuthSettings',
-                ldapProviderKey: vm.ldapProviderKey
-            }).success(function () {
-                console.log("success");
-                helperService.successToast(i18nService.message('joant_ldapOAuthView.message.succes.saveSuccess'));
-            }).error(function (data) {
-                helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.label') + ' ' + data.error);
-                console.log(data);
-            });
 
             settingsService.setMapperMapping({
                 connectorServiceName: $routeParams.connectorServiceName,
@@ -132,22 +116,6 @@
             }).error(function (data) {
                 helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.label') + ' ' + data.error);
             });
-
-            ldapSettingsService.getLdapProviderKey({
-                connectorServiceName: $routeParams.connectorServiceName,
-                mapperServiceName: 'ldapOAuthProvider'
-            }).success(function (data) {
-                if (!angular.equals(data, {})) {
-                    console.log("test");
-                    console.log(data);
-                    console.log(data.ldapProviderKey);
-                    vm.ldapProviderKey = data.ldapProviderKey;
-                }
-            }).error(function (data) {
-                helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.label') + ' ' + data.error);
-            });
-
-
 
             settingsService.getConnectorProperties({
                 connectorServiceName: $routeParams.connectorServiceName

@@ -8,4 +8,12 @@
 [joant:ldapOAuthSettings] > joamix:oauthMapperSettings
  
 [joamix:ldapOAuth] > jmix:autoPublish mixin
- - ldapProviderKey (string) indexed=no nofulltext
+ extends = jnt:virtualsite
+ itemtype = options
+ - ldapOAuth_providerKey (string) = 'ldap' indexed=no nofulltext
+ - ldapOAuth_rdn (string) = 'uid=' indexed=no nofulltext
+ - ldapOAuth_objectClass (string) = 'top','jahia' multiple indexed=no nofulltext
+ - ldapOAuth_userBaseDn (string) = 'dc=jahia,dc=com' indexed=no nofulltext
+ - ldapOAuth_j_email (string) = 'mail' indexed=no nofulltext
+ - ldapOAuth_j_firstName (string) = 'cn' indexed=no nofulltext
+ - ldapOAuth_j_lastName (string) ='sn' indexed=no nofulltext

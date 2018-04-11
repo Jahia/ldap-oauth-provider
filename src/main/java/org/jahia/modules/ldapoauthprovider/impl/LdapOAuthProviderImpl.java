@@ -48,12 +48,13 @@ import javax.jcr.RepositoryException;
 import javax.naming.InvalidNameException;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 import org.jahia.modules.jahiaoauth.service.MapperService;
-import org.jahia.params.valves.ldapoauth.actions.ManageLdapProviderKeys;
+import org.jahia.params.valves.ldapoauth.LdapOAuthValve;
 import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
+import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.sites.JahiaSitesService;
@@ -72,9 +73,16 @@ import org.springframework.ldap.core.LdapTemplate;
 public class LdapOAuthProviderImpl implements MapperService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthProviderImpl.class);
+    private static final String KEY_VALUE_NAME = "name";
+    private static final String PREFIX_LDAP_O_AUTH_PROPERTIES = "ldapOAuth_";
+    private static final String PROPERTY_LDAP_O_AUTH_USER_BASE_DN = PREFIX_LDAP_O_AUTH_PROPERTIES + "userBaseDn";
+    private static final String PROPERTY_OBJECT_CLASS = PREFIX_LDAP_O_AUTH_PROPERTIES + "objectClass";
+    private static final String PROPERTY_RDN = PREFIX_LDAP_O_AUTH_PROPERTIES + "rdn";
+    private static final String PROPERTY_LDAP_PROVIDER_KEY = PREFIX_LDAP_O_AUTH_PROPERTIES + "providerKey";
     private JahiaUserManagerService jahiaUserManagerService;
     private JCRTemplate jcrTemplate;
     private List<Map<String, Object>> properties;
+    private final List<String> expectedProperties = new ArrayList<>();
     private String serviceName;
 
     @Override
@@ -88,7 +96,7 @@ public class LdapOAuthProviderImpl implements MapperService {
             jcrTemplate.doExecuteWithSystemSession(new JCRCallback<Object>() {
                 @Override
                 public Object doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    final String userId = (mapperResult.containsKey("j:email")) ? (String) ((Map<String, Object>) mapperResult.get("j:email")).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
+                    final String userId = (mapperResult.containsKey(LdapOAuthValve.PROPERTY_EMAIL)) ? (String) ((Map<String, Object>) mapperResult.get(LdapOAuthValve.PROPERTY_EMAIL)).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
 
                     final JCRUserNode userNode = jahiaUserManagerService.lookupUser(userId, session);
                     if (userNode == null) {
@@ -96,11 +104,8 @@ public class LdapOAuthProviderImpl implements MapperService {
                         final String connectorServiceName = mapperResult.get(JahiaOAuthConstants.CONNECTOR_SERVICE_NAME).toString();
                         final JCRSiteNode siteNode = JahiaSitesService.getInstance().getSiteByKey(siteKey, session);
                         final JCRNodeWrapper mappersNode = siteNode.getNode(JahiaOAuthConstants.JAHIA_OAUTH_NODE_NAME).getNode(connectorServiceName).getNode(JahiaOAuthConstants.MAPPERS_NODE_NAME);
-                        final JCRNodeWrapper currentMapperNode;
                         if (mappersNode.hasNode(serviceName)) {
-                            currentMapperNode = mappersNode.getNode(serviceName);
-
-                            final String providerKey = currentMapperNode.getPropertyAsString(ManageLdapProviderKeys.PROPERTY_LDAP_PROVIDER_KEY);
+                            final String providerKey = siteNode.getPropertyAsString(LdapOAuthProviderImpl.PROPERTY_LDAP_PROVIDER_KEY);
 
                             try {
                                 final LdapProviderConfiguration ldapProviderConfiguration = (LdapProviderConfiguration) SpringContextSingleton.getBean("ldapProviderConfiguration");
@@ -109,66 +114,69 @@ public class LdapOAuthProviderImpl implements MapperService {
                                 if (ldapTemplateWrapper == null) {
                                     LOGGER.error("The LDAP provider with key '" + providerKey + "' does not exist");
                                 } else {
-
+                                    final JCRValueWrapper[] objectClasses = siteNode.getProperty(PROPERTY_OBJECT_CLASS).getValues();
                                     // Create a container set of attributes
                                     final javax.naming.directory.Attributes container = new javax.naming.directory.BasicAttributes();
 
                                     // Create the objectclass to add
                                     final javax.naming.directory.Attribute objClasses = new javax.naming.directory.BasicAttribute("objectClass");
-                                    objClasses.add("jahia");
-                                    objClasses.add("top");
+                                    if (objectClasses == null) {
+                                        LOGGER.error("No objectClass has been defined");
+                                    } else {
+                                        for (JCRValueWrapper objectClass : objectClasses) {
+                                            objClasses.add(objectClass.getString());
+                                        }
+                                    }
                                     container.put(objClasses);
 
-                                    // Assign the username, first name, and last name
-                                    final javax.naming.directory.Attribute uid = new javax.naming.directory.BasicAttribute("uid", userId);
-                                    container.put(uid);
-
-                                    final javax.naming.directory.Attribute email = new javax.naming.directory.BasicAttribute("mail", userId);
-                                    container.put(email);
-
-                                    if (mapperResult.containsKey("j:firstName")) {
-                                        final String firstName = (String) ((Map<String, Object>) mapperResult.get("j:firstName")).get(JahiaOAuthConstants.PROPERTY_VALUE);
-                                        if (!firstName.isEmpty()) {
-                                            final javax.naming.directory.Attribute commonName = new javax.naming.directory.BasicAttribute("cn", firstName);
-                                            container.put(commonName);
+                                    for (String expectedProperty : expectedProperties) {
+                                        if (mapperResult.containsKey(expectedProperty)) {
+                                            final String value = (String) ((Map<String, Object>) mapperResult.get(expectedProperty)).get(JahiaOAuthConstants.PROPERTY_VALUE);
+                                            if (!value.isEmpty()) {
+                                                final String attributeListValue = siteNode.getPropertyAsString(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replaceAll(":", "_"));
+                                                if (attributeListValue != null && !attributeListValue.isEmpty()) {
+                                                    for (String attr : attributeListValue.split(",")) {
+                                                        final javax.naming.directory.Attribute attribute = new javax.naming.directory.BasicAttribute(attr, value);
+                                                        container.put(attribute);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
 
-                                    if (mapperResult.containsKey("j:lastName")) {
-                                        final String lastName = (String) ((Map<String, Object>) mapperResult.get("j:lastName")).get(JahiaOAuthConstants.PROPERTY_VALUE);
-                                        if (!lastName.isEmpty()) {
-                                            final javax.naming.directory.Attribute surName = new javax.naming.directory.BasicAttribute("sn", lastName);
-                                            container.put(surName);
+                                    final String userBaseDn = siteNode.getPropertyAsString(PROPERTY_LDAP_O_AUTH_USER_BASE_DN);
+                                    final String rdn = siteNode.getPropertyAsString(PROPERTY_RDN);
+
+                                    if (userBaseDn != null && !userBaseDn.isEmpty() && rdn != null && !rdn.isEmpty()) {
+                                        final javax.naming.ldap.LdapName dn = new javax.naming.ldap.LdapName(userBaseDn);
+                                        dn.add(new javax.naming.ldap.Rdn(rdn + userId));
+
+                                        boolean success = ldapTemplateWrapper.execute(new BaseLdapActionCallback<Boolean>() {
+
+                                            @Override
+                                            public Boolean doInLdap(LdapTemplate ldapTemplate) {
+                                                ldapTemplate.bind(dn, null, container);
+                                                return true;
+                                            }
+
+                                            @Override
+                                            public Boolean onError(Exception ex) {
+                                                LOGGER.error("An error occurred while communicating with the LDAP server " + providerKey, ex);
+                                                return false;
+                                            }
+
+                                        });
+                                        if (success) {
+                                            final LDAPCacheManager lDAPCacheManager = (LDAPCacheManager) SpringContextSingleton.getBean("ldapCacheManager");
+                                            lDAPCacheManager.clearUserCacheEntryByName(providerKey, userId);
+                                            jahiaUserManagerService.clearNonExistingUsersCache();
+
+                                        } else {
+                                            LOGGER.error("An error occurred while adding user " + userId);
                                         }
-                                    }
-                                    final javax.naming.directory.Attribute ssoUser = new javax.naming.directory.BasicAttribute("ssoUser", "false");
-                                    container.put(ssoUser);
-
-                                    final javax.naming.ldap.LdapName dn = new javax.naming.ldap.LdapName("ou=jahiaUsers,dc=jahia,dc=com");
-                                    dn.add(new javax.naming.ldap.Rdn("uid=" + userId));
-
-                                    boolean success = ldapTemplateWrapper.execute(new BaseLdapActionCallback<Boolean>() {
-
-                                        @Override
-                                        public Boolean doInLdap(LdapTemplate ldapTemplate) {
-                                            ldapTemplate.bind(dn, null, container);
-                                            return true;
-                                        }
-
-                                        @Override
-                                        public Boolean onError(Exception ex) {
-                                            LOGGER.error("An error occurred while communicating with the LDAP server " + providerKey, ex);
-                                            return false;
-                                        }
-
-                                    });
-                                    if (success) {
-                                        final LDAPCacheManager lDAPCacheManager = (LDAPCacheManager) SpringContextSingleton.getBean("ldapCacheManager");
-                                        lDAPCacheManager.clearUserCacheEntryByName(providerKey, userId);
-                                        jahiaUserManagerService.clearNonExistingUsersCache();
-
                                     } else {
-                                        LOGGER.error("An error occurred while adding user " + userId);
+                                        final String errMsg = String.format("Expected userBaseDn and rnd not null/empty, got %s and %s", userBaseDn, rdn);
+                                        LOGGER.error(errMsg);
                                     }
                                 }
                             } catch (InvalidNameException ex) {
@@ -190,7 +198,13 @@ public class LdapOAuthProviderImpl implements MapperService {
     }
 
     public void setProperties(List<Map<String, Object>> properties) {
+        this.expectedProperties.clear();
         this.properties = properties;
+        for (Map<String, Object> propertiesMap : properties) {
+            if (propertiesMap.containsKey(KEY_VALUE_NAME)) {
+                expectedProperties.add(propertiesMap.get(KEY_VALUE_NAME).toString());
+            }
+        }
     }
 
     public void setServiceName(String serviceName) {

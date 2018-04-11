@@ -73,15 +73,6 @@
             </md-input-container>
         </div>
 
-        <section>
-            <div flex="10"></div>
-            <md-input-container flex>
-                <label message-key="joant_ldapOAuthView.label.ldapProviderKey"></label>
-                <input ng-model="ldapOAuthProvider.ldapProviderKey" ng-required="true">
-                </input>
-            </md-input-container>
-        </section>
-
         <section ng-show="ldapOAuthProvider.mapping.length > 0">
             <hr />
             <div layout="row" ng-repeat="mapped in ldapOAuthProvider.mapping track by $index" layout-align="start center">
