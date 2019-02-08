@@ -1,13 +1,11 @@
 package org.jahia.modules.ldapoauthprovider.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import javax.jcr.RepositoryException;
 import javax.naming.InvalidNameException;
-import org.jahia.modules.external.users.UserGroupProviderConfiguration;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 import org.jahia.modules.jahiaoauth.service.MapperService;
+import org.jahia.osgi.BundleUtils;
 import org.jahia.params.valves.ldapoauth.LdapOAuthValve;
 import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRCallback;
@@ -19,6 +17,7 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.sites.JahiaSitesService;
 import org.jahia.services.usermanager.JahiaUserManagerService;
+import org.jahia.services.usermanager.ldap.JahiaLDAPConfigFactory;
 import org.jahia.services.usermanager.ldap.cache.LDAPCacheManager;
 import org.jahia.services.usermanager.ldap.communication.LdapTemplateCallback;
 import org.jahia.services.usermanager.ldap.communication.LdapTemplateWrapper;
@@ -40,7 +39,7 @@ public class LdapOAuthProviderImpl implements MapperService {
     private JCRTemplate jcrTemplate;
     private List<Map<String, Object>> properties;
     private final List<String> expectedProperties = new ArrayList<>();
-    private UserGroupProviderConfiguration ldapProviderConfiguration;
+    private LDAPCacheManager ldapCacheManager;
     private String serviceName;
 
     @Override
@@ -66,9 +65,8 @@ public class LdapOAuthProviderImpl implements MapperService {
                             final String providerKey = siteNode.getPropertyAsString(LdapOAuthProviderImpl.PROPERTY_LDAP_PROVIDER_KEY);
 
                             try {
-                                // We have to use Java Reflection following the ticket QA-10743 as we don't have a bean anymore to get the LdapProviderConfiguration
-                                final Method method = Class.forName("org.jahia.services.usermanager.ldap.LdapProviderConfiguration").getMethod("getLdapTemplateWrapper", String.class);
-                                final LdapTemplateWrapper ldapTemplateWrapper = (LdapTemplateWrapper) method.invoke(ldapProviderConfiguration, "providerKey", providerKey);
+                                final JahiaLDAPConfigFactory jahiaLDAPConfigFactory = (JahiaLDAPConfigFactory) BundleUtils.getOsgiService("org.jahia.services.usermanager.ldap.JahiaLDAPConfigFactory", null);
+                                final LdapTemplateWrapper ldapTemplateWrapper = jahiaLDAPConfigFactory.getLdapTemplateWrapper(providerKey);
 
                                 if (ldapTemplateWrapper == null) {
                                     LOGGER.error("The LDAP provider with key '" + providerKey + "' does not exist");
@@ -142,8 +140,7 @@ public class LdapOAuthProviderImpl implements MapperService {
 
                                         });
                                         if (success) {
-                                            final LDAPCacheManager lDAPCacheManager = (LDAPCacheManager) SpringContextSingleton.getBean("ldapCacheManager");
-                                            lDAPCacheManager.clearUserCacheEntryByName(providerKey, userId);
+                                            ldapCacheManager.clearUserCacheEntryByName(providerKey, userId);
                                             jahiaUserManagerService.clearNonExistingUsersCache();
 
                                         } else {
@@ -154,7 +151,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                                         LOGGER.error(errMsg);
                                     }
                                 }
-                            } catch (InvalidNameException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                            } catch (InvalidNameException | SecurityException | IllegalArgumentException ex) {
                                 LOGGER.error("An error occurred while adding user " + userId, ex);
                             }
                         }
@@ -194,8 +191,8 @@ public class LdapOAuthProviderImpl implements MapperService {
         this.jcrTemplate = jcrTemplate;
     }
 
-    public void setLdapProviderConfiguration(UserGroupProviderConfiguration ldapProviderConfiguration) {
-        this.ldapProviderConfiguration = ldapProviderConfiguration;
+    public void setLdapCacheManager(LDAPCacheManager ldapCacheManager) {
+        this.ldapCacheManager = ldapCacheManager;
     }
 
     private abstract class BaseLdapActionCallback<T> implements LdapTemplateCallback<T> {
