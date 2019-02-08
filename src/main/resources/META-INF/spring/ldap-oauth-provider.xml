@@ -8,8 +8,10 @@
 
     <osgi:reference id="jahiaOAuthService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService" availability="mandatory"/>
     <osgi:reference id="jahiaOAuthCacheService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService" availability="mandatory"/>
+    <osgi:reference id="ldapProviderConfiguration" interface="org.jahia.modules.external.users.UserGroupProviderConfiguration" availability="mandatory"/>     
 
     <bean id="ldapOAuthProviderImpl" class="org.jahia.modules.ldapoauthprovider.impl.LdapOAuthProviderImpl">
+        <property name="ldapProviderConfiguration" ref="ldapProviderConfiguration"/>
         <property name="jahiaUserManagerService" ref="JahiaUserManagerService"/>
         <property name="jcrTemplate" ref="jcrTemplate"/>
         <property name="serviceName" value="ldapOAuthProvider"/>
