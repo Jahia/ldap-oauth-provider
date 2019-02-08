@@ -66,6 +66,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                             final String providerKey = siteNode.getPropertyAsString(LdapOAuthProviderImpl.PROPERTY_LDAP_PROVIDER_KEY);
 
                             try {
+                                // We have to use Java Reflection following the ticket QA-10743 as we don't have a bean anymore to get the LdapProviderConfiguration
                                 final Method method = Class.forName("org.jahia.services.usermanager.ldap.LdapProviderConfiguration").getMethod("getLdapTemplateWrapper", String.class);
                                 final LdapTemplateWrapper ldapTemplateWrapper = (LdapTemplateWrapper) method.invoke(ldapProviderConfiguration, "providerKey", providerKey);
 
