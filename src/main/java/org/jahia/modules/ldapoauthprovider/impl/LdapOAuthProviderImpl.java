@@ -76,7 +76,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                             final LdapTemplateWrapper ldapTemplateWrapper = jahiaLDAPConfigFactory.getLdapTemplateWrapper(providerKey);
 
                             if (ldapTemplateWrapper == null) {
-                                LOGGER.error("The LDAP provider with key '" + providerKey + "' does not exist");
+                                LOGGER.error("The LDAP provider with key '{}' does not exist", providerKey);
                             } else {
                                 final JCRValueWrapper[] objectClasses = siteNode.getProperty(PROPERTY_OBJECT_CLASS).getValues();
                                 // Create a container set of attributes
@@ -99,7 +99,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                                         if (value.isEmpty()) {
                                             LOGGER.error("The expected values are not defined");
                                         } else {
-                                            final JCRValueWrapper[] attributes = siteNode.getProperty(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replaceAll(":", "_")).getValues();
+                                            final JCRValueWrapper[] attributes = siteNode.getProperty(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replace(':', '_')).getValues();
                                             if (attributes == null) {
                                                 LOGGER.error("The expected properties are not mapped to the LDAP attributes");
                                             } else {
@@ -141,7 +141,7 @@ public class LdapOAuthProviderImpl implements MapperService {
 
                                         @Override
                                         public Boolean onError(Exception ex) {
-                                            LOGGER.error("An error occurred while communicating with the LDAP server " + providerKey, ex);
+                                            LOGGER.error("An error occurred while communicating with the LDAP server {}", providerKey, ex);
                                             return false;
                                         }
 
@@ -151,7 +151,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                                         jahiaUserManagerService.clearNonExistingUsersCache();
 
                                     } else {
-                                        LOGGER.error("An error occurred while adding user " + userId);
+                                        LOGGER.error("An error occurred while adding user {}", userId);
                                     }
                                 } else {
                                     final String errMsg = String.format("Expected userBaseDn and rnd not null/empty, got %s and %s", userBaseDn, rdn);
@@ -159,7 +159,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                                 }
                             }
                         } catch (InvalidNameException | SecurityException | IllegalArgumentException ex) {
-                            LOGGER.error("An error occurred while adding user " + userId, ex);
+                            LOGGER.error("An error occurred while adding user {}", userId, ex);
                         }
                     }
                     return null;
