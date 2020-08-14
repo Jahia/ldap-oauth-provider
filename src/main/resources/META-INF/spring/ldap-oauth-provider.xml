@@ -43,15 +43,6 @@
         </property>
     </bean>
 
-    <bean id="ldapOAuthValve" class="org.jahia.params.valves.ldapoauth.LdapOAuthValve">
-        <property name="jahiaOAuthService" ref="jahiaOAuthService"/>
-        <property name="jahiaOAuthCacheService" ref="jahiaOAuthCacheService"/>
-        <property name="ldapOAuthProviderImpl" ref="ldapOAuthProviderImpl"/>
-        <property name="jahiaUserManagerService" ref="JahiaUserManagerService"/>
-        <property name="cookieAuthConfig" ref="cookieAuthConfig"/>
-        <property name="preserveSessionAttributes" value="${preserveSessionAttributesOnLogin:wemSessionId}" />
-    </bean>
-
     <osgi:service ref="ldapOAuthProviderImpl" interface="org.jahia.modules.jahiaoauth.service.MapperService">
         <osgi:service-properties>
             <entry key="mapperServiceName" value="ldapOAuthProvider"/>
