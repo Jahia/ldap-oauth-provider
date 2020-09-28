@@ -7,23 +7,23 @@
         <version>8.0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ldap-oauth-provider</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <artifactId>ldap-auth-provider</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>LDAP OAuth provider</name>
+    <name>LDAP Authentication provider</name>
     <description>This is the custom module (LDAP OAuth provider for running on a Digital Experience Manager server.</description>
 
     <scm>
-        <connection>scm:git:git@github.com:Jahia/ldap-oauth-provider.git</connection>
-        <developerConnection>scm:git:git@github.com:Jahia/ldap-oauth-provider.git</developerConnection>
-        <url>https://github.com/Jahia/ldap-oauth-provider</url>
+        <connection>scm:git:git@github.com:Jahia/ldap-auth-provider.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/ldap-auth-provider.git</developerConnection>
+        <url>https://github.com/Jahia/ldap-auth-provider</url>
         <tag>HEAD</tag>
     </scm>
 
     <properties>
-        <jahia-depends>default,external-provider,external-provider-users-groups,jahia-oauth,ldap</jahia-depends>
+        <jahia-depends>default,external-provider,external-provider-users-groups,jahia-authentication,ldap</jahia-depends>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
-        <jahia-module-signature>MCwCFDkqqLrqcr+tV8AGyadEw2tgtLzCAhQbb7zOxTMsB98B26Rd8LiIGGAWKw==</jahia-module-signature>
+        <jahia-module-signature>MC0CFAxPY0Xmjz6qZTIBO/zhTBHfwKm3AhUAheSB/59ie+VxdfM2Azer5baDiQM=</jahia-module-signature>
     </properties>
 
     <distributionManagement>
@@ -81,8 +81,8 @@
     <dependencies>
         <dependency>
             <groupId>org.jahia.modules</groupId>
-            <artifactId>jahia-oauth</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <artifactId>jahia-authentication</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

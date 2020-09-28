@@ -1,7 +1,9 @@
 package org.jahia.modules.ldapoauthprovider.impl;
 
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.modules.jahiaoauth.service.MapperService;
+import org.jahia.modules.jahiaauth.service.JahiaAuthConstants;
+import org.jahia.modules.jahiaauth.service.MappedProperty;
+import org.jahia.modules.jahiaauth.service.MappedPropertyInfo;
+import org.jahia.modules.jahiaauth.service.Mapper;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -21,53 +23,48 @@ import org.springframework.ldap.core.LdapTemplate;
 
 import javax.jcr.RepositoryException;
 import javax.naming.InvalidNameException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class LdapOAuthProviderImpl implements MapperService {
+public class LdapOAuthProviderImpl implements Mapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapOAuthProviderImpl.class);
-    private static final String KEY_VALUE_NAME = "name";
     private static final String PREFIX_LDAP_O_AUTH_PROPERTIES = "ldapOAuth_";
     private static final String PROPERTY_LDAP_O_AUTH_STATIC_PROPERTIES = PREFIX_LDAP_O_AUTH_PROPERTIES + "static_properties";
     private static final String PROPERTY_LDAP_O_AUTH_USER_BASE_DN = PREFIX_LDAP_O_AUTH_PROPERTIES + "userBaseDn";
     private static final String PROPERTY_OBJECT_CLASS = PREFIX_LDAP_O_AUTH_PROPERTIES + "objectClass";
     private static final String PROPERTY_RDN = PREFIX_LDAP_O_AUTH_PROPERTIES + "rdn";
     private static final String PROPERTY_LDAP_PROVIDER_KEY = PREFIX_LDAP_O_AUTH_PROPERTIES + "providerKey";
-    private final List<String> expectedProperties = new ArrayList<>();
     private JahiaUserManagerService jahiaUserManagerService;
     private JCRTemplate jcrTemplate;
-    private List<Map<String, Object>> properties;
+    private List<MappedPropertyInfo> properties;
     private LDAPCacheManager ldapCacheManager;
     private String serviceName;
 
     @Override
-    public List<Map<String, Object>> getProperties() {
+    public List<MappedPropertyInfo> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Map<String, Object>> properties) {
-        this.expectedProperties.clear();
+    public void setProperties(List<MappedPropertyInfo> properties) {
         this.properties = properties;
-        for (Map<String, Object> propertiesMap : properties) {
-            if (propertiesMap.containsKey(KEY_VALUE_NAME)) {
-                expectedProperties.add(propertiesMap.get(KEY_VALUE_NAME).toString());
-            }
-        }
     }
 
     @Override
-    public void executeMapper(final Map<String, Object> mapperResult) {
+    public void executeMapper(final Map<String, MappedProperty> mapperResult) {
+        final MappedProperty userIdProp = mapperResult.get(JahiaAuthConstants.SSO_LOGIN);
+        if (userIdProp == null) {
+            return;
+        }
+
         try {
             jcrTemplate.doExecuteWithSystemSession(new JCRCallback<Object>() {
                 @Override
                 public Object doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    final String userId = (mapperResult.containsKey("j:email")) ? (String) ((Map<String, Object>) mapperResult.get("j:email")).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
-                    mapperResult.put(JahiaOAuthConstants.SSO_LOGIN, userId);
+                    String userId = (String) userIdProp.getValue();
                     final JCRUserNode userNode = jahiaUserManagerService.lookupUser(userId, session);
                     if (userNode == null) {
-                        final String siteKey = mapperResult.get(JahiaOAuthConstants.PROPERTY_SITE_KEY).toString();
+                        final String siteKey = (String) mapperResult.get(JahiaAuthConstants.SITE_KEY).getValue();
                         final JCRSiteNode siteNode = JahiaSitesService.getInstance().getSiteByKey(siteKey, session);
                         final String providerKey = siteNode.getPropertyAsString(LdapOAuthProviderImpl.PROPERTY_LDAP_PROVIDER_KEY);
 
@@ -93,13 +90,13 @@ public class LdapOAuthProviderImpl implements MapperService {
                                 }
                                 container.put(objClasses);
 
-                                for (String expectedProperty : expectedProperties) {
-                                    if (mapperResult.containsKey(expectedProperty)) {
-                                        final String value = (String) ((Map<String, Object>) mapperResult.get(expectedProperty)).get(JahiaOAuthConstants.PROPERTY_VALUE);
+                                for (MappedPropertyInfo property : properties) {
+                                    if (mapperResult.containsKey(property.getName())) {
+                                        final String value = (String) mapperResult.get(property.getName()).getValue();
                                         if (value.isEmpty()) {
                                             LOGGER.error("The expected values are not defined");
                                         } else {
-                                            final JCRValueWrapper[] attributes = siteNode.getProperty(PREFIX_LDAP_O_AUTH_PROPERTIES + expectedProperty.replace(':', '_')).getValues();
+                                            final JCRValueWrapper[] attributes = siteNode.getProperty(PREFIX_LDAP_O_AUTH_PROPERTIES + property.getName().replace(':', '_')).getValues();
                                             if (attributes == null) {
                                                 LOGGER.error("The expected properties are not mapped to the LDAP attributes");
                                             } else {
@@ -110,7 +107,7 @@ public class LdapOAuthProviderImpl implements MapperService {
                                             }
                                         }
                                     } else {
-                                        final String errMsg = String.format("The expected property %s is not gotten from the OAuth service", expectedProperty);
+                                        final String errMsg = String.format("The expected property %s is not gotten from the OAuth service", property.getName());
                                         LOGGER.error(errMsg);
                                     }
                                 }

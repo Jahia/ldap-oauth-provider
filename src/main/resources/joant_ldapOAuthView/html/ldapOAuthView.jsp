@@ -17,13 +17,13 @@
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
-<template:addResources type="javascript" resources="i18n/ldap-oauth-provider-i18n_${currentResource.locale}.js" var="i18nJSFile"/>
-<template:addResources type="javascript" resources="ldap-oauth-provider/ldap-settings-service.js"/>
+<template:addResources type="javascript" resources="i18n/ldap-auth-provider-i18n_${currentResource.locale}.js" var="i18nJSFile"/>
+<template:addResources type="javascript" resources="ldap-auth-provider/ldap-settings-service.js"/>
 <c:if test="${empty i18nJSFile}">
-    <template:addResources type="javascript" resources="i18n/ldap-oauth-provider-i18n_en.js"/>
+    <template:addResources type="javascript" resources="i18n/ldap-auth-provider-i18n_en.js"/>
 </c:if>
 
-<template:addResources type="javascript" resources="ldap-oauth-provider/ldap-mapper-controller.js"/>
+<template:addResources type="javascript" resources="ldap-auth-provider/ldap-mapper-controller.js"/>
 <md-card ng-controller="LdapOAuthProviderController as ldapOAuthProvider" class="ng-cloak">
     <div layout="row">
         <md-card-title flex>
@@ -55,7 +55,7 @@
         </div>
 
         <div flex="35" layout="row" layout-align="start center">
-            <md-switch ng-model="ldapOAuthProvider.isActivate">
+            <md-switch ng-model="ldapOAuthProvider.enabled">
                 <span message-key="joant_ldapOAuthView.label.activate"></span>
             </md-switch>
 
@@ -65,7 +65,7 @@
                 <label message-key="joant_ldapOAuthView.label.fieldFromConnector"></label>
                 <md-select ng-model="ldapOAuthProvider.selectedPropertyFromConnector" ng-change="ldapOAuthProvider.addMapping()">
                     <md-optgroup>
-                        <md-option ng-repeat="connectorProperty in ldapOAuthProvider.connectorProperties| selectable:{mapping:ldapOAuthProvider.mapping,key:'connector'} | orderBy:ldapOAuthProvider.orderByConnector" ng-value="connectorProperty">
+                        <md-option ng-repeat="connectorProperty in ldapOAuthProvider.connectorProperties | orderBy:ldapOAuthProvider.orderByConnector" ng-value="connectorProperty">
                             {{ ldapOAuthProvider.getConnectorI18n(connectorProperty.name)}}
                         </md-option>
                     </md-optgroup>

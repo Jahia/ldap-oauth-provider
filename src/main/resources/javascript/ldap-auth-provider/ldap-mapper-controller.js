@@ -9,7 +9,7 @@
         var vm = this;
 
         // Variables
-        vm.isActivate = false;
+        vm.enabled = false;
         vm.connectorProperties = [];
         vm.mapperProperties = [];
         vm.mapping = [];
@@ -50,7 +50,7 @@
                     }
                 }
             });
-            if (vm.isActivate && !mandatoryPropertyAreMapped) {
+            if (vm.enabled && !mandatoryPropertyAreMapped) {
                 helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.error.mandatoryPropertiesNotMapped'));
                 return false;
             }
@@ -58,8 +58,7 @@
             settingsService.setMapperMapping({
                 connectorServiceName: $routeParams.connectorServiceName,
                 mapperServiceName: 'ldapOAuthProvider',
-                nodeType: 'joant:ldapOAuthSettings',
-                isActivate: vm.isActivate,
+                enabled: vm.enabled,
                 mapping: vm.mapping
             }).success(function () {
                 helperService.successToast(i18nService.message('joant_ldapOAuthView.message.success.mappingSaved'));
@@ -110,7 +109,7 @@
                 mapperServiceName: 'ldapOAuthProvider'
             }).success(function (data) {
                 if (!angular.equals(data, {})) {
-                    vm.isActivate = data.isActivate;
+                    vm.enabled = data.enabled;
                     vm.mapping = data.mapping;
                 }
             }).error(function (data) {
