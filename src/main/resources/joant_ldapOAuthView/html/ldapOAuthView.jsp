@@ -54,13 +54,46 @@
             <span message-key="joant_ldapOAuthView.message.description2"></span>
         </div>
 
-        <div flex="35" layout="row" layout-align="start center">
-            <md-switch ng-model="ldapOAuthProvider.enabled">
-                <span message-key="joant_ldapOAuthView.label.activate"></span>
-            </md-switch>
+        <md-switch ng-model="ldapOAuthProvider.enabled">
+            <span message-key="joant_ldapOAuthView.label.activate"></span>
+        </md-switch>
 
-            <div flex="10"></div>
+        <div layout="row">
+            <md-input-container flex>
+                <label message-key="joant_ldapOAuthView.label.providerKey"></label>
+                <input type="text" ng-model="ldapOAuthProvider.ldapOAuth_providerKey" name="ldapOAuth_providerKey" required>
+            </md-input-container>
+        </div>
 
+        <div layout="row">
+            <md-input-container flex>
+                <label message-key="joant_ldapOAuthView.label.rdn"></label>
+                <input type="text" ng-model="ldapOAuthProvider.ldapOAuth_rdn" name="ldapOAuth_rdn">
+            </md-input-container>
+        </div>
+
+        <div layout="row">
+            <md-input-container flex>
+                <label message-key="joant_ldapOAuthView.label.userBaseDn"></label>
+                <input type="text" ng-model="ldapOAuthProvider.ldapOAuth_userBaseDn" name="ldapOAuth_userBaseDn">
+            </md-input-container>
+        </div>
+
+        <div layout="row">
+            <md-input-container flex>
+                <label message-key="joant_ldapOAuthView.label.static_properties"></label>
+                <input type="text" ng-model="ldapOAuthProvider.ldapOAuth_static_properties" name="ldapOAuth_static_properties">
+            </md-input-container>
+        </div>
+
+        <div layout="row">
+            <md-input-container flex>
+                <label message-key="joant_ldapOAuthView.label.objectClass"></label>
+                <input type="text" ng-model="ldapOAuthProvider.ldapOAuth_objectClass" name="ldapOAuth_objectClass">
+            </md-input-container>
+        </div>
+
+        <div layout="row" layout-align="start center">
             <md-input-container flex>
                 <label message-key="joant_ldapOAuthView.label.fieldFromConnector"></label>
                 <md-select ng-model="ldapOAuthProvider.selectedPropertyFromConnector" ng-change="ldapOAuthProvider.addMapping()">

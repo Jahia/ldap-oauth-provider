@@ -14,7 +14,7 @@
         vm.mapperProperties = [];
         vm.mapping = [];
         vm.selectedPropertyFromConnector = '';
-        vm.ldapProviderKey = '';
+        vm.ldapOAuth_providerKey = '';
         vm.selectedPropertyFromMapper = '';
         vm.expandedCard = false;
 
@@ -58,7 +58,14 @@
             settingsService.setMapperMapping({
                 connectorServiceName: $routeParams.connectorServiceName,
                 mapperServiceName: 'ldapOAuthProvider',
-                enabled: vm.enabled,
+                properties: {
+                    enabled: vm.enabled,
+                    ldapOAuth_providerKey: vm.ldapOAuth_providerKey,
+                    ldapOAuth_userBaseDn: vm.ldapOAuth_userBaseDn,
+                    ldapOAuth_rdn: vm.ldapOAuth_rdn,
+                    ldapOAuth_objectClass: vm.ldapOAuth_objectClass,
+                    ldapOAuth_static_properties: vm.ldapOAuth_static_properties
+                },
                 mapping: vm.mapping
             }).success(function () {
                 helperService.successToast(i18nService.message('joant_ldapOAuthView.message.success.mappingSaved'));
@@ -106,11 +113,17 @@
 
             settingsService.getMapperMapping({
                 connectorServiceName: $routeParams.connectorServiceName,
-                mapperServiceName: 'ldapOAuthProvider'
+                mapperServiceName: 'ldapOAuthProvider',
+                properties: ['ldapOAuth_providerKey', 'ldapOAuth_userBaseDn', 'ldapOAuth_rdn', 'ldapOAuth_objectClass', 'ldapOAuth_static_properties']
             }).success(function (data) {
                 if (!angular.equals(data, {})) {
                     vm.enabled = data.enabled;
                     vm.mapping = data.mapping;
+                    vm.ldapOAuth_providerKey = data.ldapOAuth_providerKey;
+                    vm.ldapOAuth_userBaseDn = data.ldapOAuth_userBaseDn;
+                    vm.ldapOAuth_rdn = data.ldapOAuth_rdn;
+                    vm.ldapOAuth_objectClass = data.ldapOAuth_objectClass;
+                    vm.ldapOAuth_static_properties = data.ldapOAuth_static_properties;
                 }
             }).error(function (data) {
                 helperService.errorToast(i18nService.message('joant_ldapOAuthView.message.label') + ' ' + data.error);

@@ -11,7 +11,6 @@
     <bean id="ldapOAuthProviderImpl" class="org.jahia.modules.ldapoauthprovider.impl.LdapOAuthProviderImpl">
         <property name="ldapCacheManager" ref="ldapCacheManager"/>
         <property name="jahiaUserManagerService" ref="JahiaUserManagerService"/>
-        <property name="jcrTemplate" ref="jcrTemplate"/>
         <property name="serviceName" value="ldapOAuthProvider"/>
         
         <property name="properties">
@@ -22,18 +21,18 @@
                     <property name="mandatory" value="true"/>
                 </bean>
                 <bean class="org.jahia.modules.jahiaauth.service.MappedPropertyInfo">
-                    <property name="name" value="j:firstName"/>
-                    <property name="valueType" value="string"/>
-                    <property name="mandatory" value="false"/>
-                </bean>
-                <bean class="org.jahia.modules.jahiaauth.service.MappedPropertyInfo">
-                    <property name="name" value="j:lastName"/>
-                    <property name="valueType" value="string"/>
-                    <property name="mandatory" value="false"/>
-                </bean>
-                <bean class="org.jahia.modules.jahiaauth.service.MappedPropertyInfo">
-                    <property name="name" value="j:email"/>
+                    <property name="name" value="mail"/>
                     <property name="valueType" value="email"/>
+                    <property name="mandatory" value="false"/>
+                </bean>
+                <bean class="org.jahia.modules.jahiaauth.service.MappedPropertyInfo">
+                    <property name="name" value="sn"/>
+                    <property name="valueType" value="string"/>
+                    <property name="mandatory" value="false"/>
+                </bean>
+                <bean class="org.jahia.modules.jahiaauth.service.MappedPropertyInfo">
+                    <property name="name" value="givenname"/>
+                    <property name="valueType" value="string"/>
                     <property name="mandatory" value="false"/>
                 </bean>
             </list>
